@@ -29,6 +29,7 @@ updateCountdown()
 setInterval(updateCountdown, 1000)
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const coarsePointer = window.matchMedia('(pointer: coarse)').matches
 const fireworkCanvas = document.getElementById('fireworkTrail')
 const fireworkContext = fireworkCanvas.getContext('2d')
 const sparks = []
@@ -36,9 +37,13 @@ const fireworkRings = []
 const sparkColors = ['#ffd166', '#ff9f1c', '#ff5d73', '#f7e7a9', '#e64d78']
 let lastBurst = 0
 let pixelRatio = 1
+let fireworkFrame = null
+let canvasCssWidth = 0
 
 function resizeFireworkCanvas() {
-  pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+  if (coarsePointer && canvasCssWidth === window.innerWidth) return
+  canvasCssWidth = window.innerWidth
+  pixelRatio = coarsePointer ? 1 : Math.min(window.devicePixelRatio || 1, 1.5)
   fireworkCanvas.width = window.innerWidth * pixelRatio
   fireworkCanvas.height = window.innerHeight * pixelRatio
   fireworkCanvas.style.width = `${window.innerWidth}px`
@@ -57,17 +62,24 @@ function burst(x, y, amount = 7, power = 1) {
       velocityY: Math.sin(angle) * speed,
       color: sparkColors[Math.floor(Math.random() * sparkColors.length)],
       life: 1,
-      decay: .018 + Math.random() * .025,
+      decay: (coarsePointer ? .04 : .024) + Math.random() * (coarsePointer ? .025 : .022),
       size: 2.4 + Math.random() * 3.8,
     })
   }
   if (power > 1.2) {
     fireworkRings.push({ x, y, radius: 5, life: 1, color: sparkColors[Math.floor(Math.random() * sparkColors.length)] })
   }
-  if (sparks.length > 420) sparks.splice(0, sparks.length - 420)
+  const particleLimit = coarsePointer ? 110 : 280
+  if (sparks.length > particleLimit) sparks.splice(0, sparks.length - particleLimit)
+  requestFireworkFrame()
+}
+
+function requestFireworkFrame() {
+  if (fireworkFrame === null) fireworkFrame = requestAnimationFrame(animateFireworks)
 }
 
 function animateFireworks() {
+  fireworkFrame = null
   fireworkContext.clearRect(0, 0, window.innerWidth, window.innerHeight)
   fireworkContext.globalCompositeOperation = 'lighter'
   for (let index = sparks.length - 1; index >= 0; index -= 1) {
@@ -86,7 +98,7 @@ function animateFireworks() {
     fireworkContext.fillStyle = spark.color
     fireworkContext.globalAlpha = spark.life
     fireworkContext.shadowColor = spark.color
-    fireworkContext.shadowBlur = 9
+    fireworkContext.shadowBlur = coarsePointer ? 0 : 7
     fireworkContext.fill()
   }
   fireworkContext.shadowBlur = 0
@@ -103,29 +115,31 @@ function animateFireworks() {
     fireworkContext.stroke()
   }
   fireworkContext.globalAlpha = 1
-  requestAnimationFrame(animateFireworks)
+  if (sparks.length || fireworkRings.length) requestFireworkFrame()
 }
 
 resizeFireworkCanvas()
-animateFireworks()
 window.addEventListener('resize', resizeFireworkCanvas, { passive: true })
 window.addEventListener('pointermove', (event) => {
-  if (Date.now() - lastBurst < 70) return
+  if (event.pointerType === 'touch' || coarsePointer || Date.now() - lastBurst < 75) return
   lastBurst = Date.now()
   burst(event.clientX, event.clientY, 6, .75)
 }, { passive: true })
-window.addEventListener('pointerdown', (event) => burst(event.clientX, event.clientY, 28, 1.65), { passive: true })
+window.addEventListener('pointerdown', (event) => burst(event.clientX, event.clientY, coarsePointer ? 14 : 25, coarsePointer ? 1.25 : 1.55), { passive: true })
 window.addEventListener('touchmove', (event) => {
   const touch = event.touches[0]
-  if (touch && Date.now() - lastBurst > 80) {
+  if (touch && Date.now() - lastBurst > 145) {
     lastBurst = Date.now()
-    burst(touch.clientX, touch.clientY, 7, .85)
+    burst(touch.clientX, touch.clientY, 3, .65)
   }
 }, { passive: true })
 
 const eventSlider = document.getElementById('eventSlider')
 const sliderDots = document.querySelectorAll('.slider-dots span')
+let sliderFrame = null
 eventSlider.addEventListener('scroll', () => {
+  if (sliderFrame !== null) return
+  sliderFrame = requestAnimationFrame(() => {
   const cards = [...eventSlider.querySelectorAll('.event-day')]
   const center = eventSlider.scrollLeft + eventSlider.clientWidth / 2
   let active = 0
@@ -136,6 +150,8 @@ eventSlider.addEventListener('scroll', () => {
     if (distance < nearest) { nearest = distance; active = index }
   })
   sliderDots.forEach((dot, index) => dot.classList.toggle('active', index === active))
+  sliderFrame = null
+  })
 }, { passive: true })
 
 const sectionLinks = [...document.querySelectorAll('.floating-nav a')]
@@ -149,4 +165,11 @@ function updateSectionNavigation() {
   sectionLinks.forEach((link) => link.classList.toggle('active', link === current))
 }
 updateSectionNavigation()
-window.addEventListener('scroll', updateSectionNavigation, { passive: true })
+let navigationFrame = null
+window.addEventListener('scroll', () => {
+  if (navigationFrame !== null) return
+  navigationFrame = requestAnimationFrame(() => {
+    updateSectionNavigation()
+    navigationFrame = null
+  })
+}, { passive: true })
