@@ -1,4 +1,5 @@
 const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const revealItems = document.querySelectorAll('.reveal-on-scroll')
 if (coarsePointer) {
   revealItems.forEach((item) => item.classList.add('visible'))
@@ -12,6 +13,14 @@ if (coarsePointer) {
     })
   }, { threshold: 0.12 })
   revealItems.forEach((item) => revealObserver.observe(item))
+}
+
+const botanicalGroups = document.querySelectorAll('.mobile-botanicals')
+if (coarsePointer && !reduceMotion) {
+  const botanicalObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => entry.target.classList.toggle('is-active', entry.isIntersecting))
+  }, { threshold: .05 })
+  botanicalGroups.forEach((group) => botanicalObserver.observe(group))
 }
 
 const weddingDate = new Date('2026-11-21T11:00:00+05:30').getTime()
@@ -33,7 +42,6 @@ function updateCountdown() {
 updateCountdown()
 setInterval(updateCountdown, 1000)
 
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const fireworkCanvas = document.getElementById('fireworkTrail')
 const fireworkContext = fireworkCanvas.getContext('2d')
 const sparks = []
