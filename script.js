@@ -15,14 +15,6 @@ if (coarsePointer) {
   revealItems.forEach((item) => revealObserver.observe(item))
 }
 
-const botanicalGroups = document.querySelectorAll('.mobile-botanicals')
-if (coarsePointer && !reduceMotion) {
-  const botanicalObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => entry.target.classList.toggle('is-active', entry.isIntersecting))
-  }, { threshold: .05 })
-  botanicalGroups.forEach((group) => botanicalObserver.observe(group))
-}
-
 const weddingDate = new Date('2026-11-21T11:00:00+05:30').getTime()
 const countdownElements = {
   days: document.getElementById('days'),

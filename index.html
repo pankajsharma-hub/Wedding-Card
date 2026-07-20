@@ -9,10 +9,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Manrope:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=mobile-botanicals-3" />
+    <link rel="stylesheet" href="styles.css?v=mobile-leaves-4" />
   </head>
   <body>
     <canvas class="firework-trail" id="fireworkTrail" aria-hidden="true"></canvas>
+    <svg class="leaf-symbols" aria-hidden="true" focusable="false">
+      <defs>
+        <symbol id="maple-leaf" viewBox="0 0 100 108">
+          <path fill="currentColor" d="M50 2 59 27 75 15 70 40 94 33 79 53 97 61 67 66 72 91 54 75 50 106 46 75 28 91 33 66 3 61 21 53 6 33 30 40 25 15 41 27Z" />
+        </symbol>
+        <symbol id="garden-leaf" viewBox="0 0 100 100">
+          <path fill="currentColor" d="M88 9C49 12 16 32 10 83c35 7 72-20 78-74Z" />
+          <path d="M18 78c19-18 37-35 62-57M39 58l-2-21M55 43l19 2" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3" stroke-linecap="round" />
+        </symbol>
+      </defs>
+    </svg>
+    <div class="mobile-page-leaves" aria-hidden="true">
+      <svg class="page-leaf maple leaf-one"><use href="#maple-leaf" /></svg>
+      <svg class="page-leaf garden leaf-two"><use href="#garden-leaf" /></svg>
+      <svg class="page-leaf maple leaf-three"><use href="#maple-leaf" /></svg>
+      <svg class="page-leaf garden leaf-four"><use href="#garden-leaf" /></svg>
+      <svg class="page-leaf maple leaf-five"><use href="#maple-leaf" /></svg>
+      <svg class="page-leaf garden leaf-six"><use href="#garden-leaf" /></svg>
+      <svg class="page-leaf maple leaf-seven"><use href="#maple-leaf" /></svg>
+    </div>
     <nav class="floating-nav glass" aria-label="Invitation sections">
       <a href="#home" class="active"><span>⌂</span><b>Welcome</b></a>
       <a href="#couple"><span>♥</span><b>Families</b></a>
@@ -22,7 +42,6 @@
 
     <header class="hero" id="home">
       <div class="noise"></div>
-      <div class="mobile-botanicals" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="sun-disc"></div>
       <div class="mandala mandala-left" aria-hidden="true"></div>
       <div class="mandala mandala-right" aria-hidden="true"></div>
@@ -98,7 +117,6 @@
       </section>
 
       <section class="events-section section" id="celebrations">
-        <div class="mobile-botanicals botanicals-warm" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
         <div class="section-heading light reveal-on-scroll">
           <p class="eyebrow">Three days of joy</p>
           <h2>Come celebrate<br /><em>with us.</em></h2>
@@ -170,7 +188,6 @@
       </section>
 
       <section class="closing-section">
-        <div class="mobile-botanicals botanicals-closing" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
         <div class="closing-mandala"></div>
         <div class="closing-content reveal-on-scroll">
           <p>We cannot wait to celebrate with you</p>
@@ -182,6 +199,6 @@
     </main>
 
     <footer><span>With love from both families</span><a href="#home">Back to top ↑</a></footer>
-    <script src="script.js?v=mobile-botanicals-3"></script>
+    <script src="script.js?v=mobile-leaves-4"></script>
   </body>
 </html>
