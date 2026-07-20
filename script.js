@@ -1,13 +1,18 @@
+const coarsePointer = window.matchMedia('(pointer: coarse)').matches
 const revealItems = document.querySelectorAll('.reveal-on-scroll')
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible')
-      revealObserver.unobserve(entry.target)
-    }
-  })
-}, { threshold: 0.12 })
-revealItems.forEach((item) => revealObserver.observe(item))
+if (coarsePointer) {
+  revealItems.forEach((item) => item.classList.add('visible'))
+} else {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible')
+        revealObserver.unobserve(entry.target)
+      }
+    })
+  }, { threshold: 0.12 })
+  revealItems.forEach((item) => revealObserver.observe(item))
+}
 
 const weddingDate = new Date('2026-11-21T11:00:00+05:30').getTime()
 const countdownElements = {
@@ -29,7 +34,6 @@ updateCountdown()
 setInterval(updateCountdown, 1000)
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-const coarsePointer = window.matchMedia('(pointer: coarse)').matches
 const fireworkCanvas = document.getElementById('fireworkTrail')
 const fireworkContext = fireworkCanvas.getContext('2d')
 const sparks = []
@@ -41,6 +45,7 @@ let fireworkFrame = null
 let canvasCssWidth = 0
 
 function resizeFireworkCanvas() {
+  if (coarsePointer || reduceMotion) return
   if (coarsePointer && canvasCssWidth === window.innerWidth) return
   canvasCssWidth = window.innerWidth
   pixelRatio = coarsePointer ? 1 : Math.min(window.devicePixelRatio || 1, 1.5)
@@ -52,7 +57,7 @@ function resizeFireworkCanvas() {
 }
 
 function burst(x, y, amount = 7, power = 1) {
-  if (reduceMotion) return
+  if (reduceMotion || coarsePointer) return
   for (let index = 0; index < amount; index += 1) {
     const angle = Math.random() * Math.PI * 2
     const speed = (1.2 + Math.random() * 2.7) * power
@@ -118,21 +123,18 @@ function animateFireworks() {
   if (sparks.length || fireworkRings.length) requestFireworkFrame()
 }
 
-resizeFireworkCanvas()
-window.addEventListener('resize', resizeFireworkCanvas, { passive: true })
-window.addEventListener('pointermove', (event) => {
-  if (event.pointerType === 'touch' || coarsePointer || Date.now() - lastBurst < 75) return
-  lastBurst = Date.now()
-  burst(event.clientX, event.clientY, 6, .75)
-}, { passive: true })
-window.addEventListener('pointerdown', (event) => burst(event.clientX, event.clientY, coarsePointer ? 14 : 25, coarsePointer ? 1.25 : 1.55), { passive: true })
-window.addEventListener('touchmove', (event) => {
-  const touch = event.touches[0]
-  if (touch && Date.now() - lastBurst > 145) {
+if (coarsePointer || reduceMotion) {
+  fireworkCanvas.hidden = true
+} else {
+  resizeFireworkCanvas()
+  window.addEventListener('resize', resizeFireworkCanvas, { passive: true })
+  window.addEventListener('pointermove', (event) => {
+    if (Date.now() - lastBurst < 75) return
     lastBurst = Date.now()
-    burst(touch.clientX, touch.clientY, 3, .65)
-  }
-}, { passive: true })
+    burst(event.clientX, event.clientY, 6, .75)
+  }, { passive: true })
+  window.addEventListener('pointerdown', (event) => burst(event.clientX, event.clientY, 25, 1.55), { passive: true })
+}
 
 const eventSlider = document.getElementById('eventSlider')
 const sliderDots = document.querySelectorAll('.slider-dots span')
@@ -155,15 +157,19 @@ eventSlider.addEventListener('scroll', () => {
 }, { passive: true })
 
 const sectionLinks = [...document.querySelectorAll('.floating-nav a')]
+let sectionOffsets = []
+function refreshSectionOffsets() {
+  sectionOffsets = sectionLinks.map((link) => ({ link, top: document.querySelector(link.getAttribute('href'))?.offsetTop || 0 }))
+}
 function updateSectionNavigation() {
   const marker = window.scrollY + window.innerHeight * .4
-  let current = sectionLinks[0]
-  sectionLinks.forEach((link) => {
-    const section = document.querySelector(link.getAttribute('href'))
-    if (section && section.offsetTop <= marker) current = link
+  let current = sectionOffsets[0]?.link || sectionLinks[0]
+  sectionOffsets.forEach(({ link, top }) => {
+    if (top <= marker) current = link
   })
   sectionLinks.forEach((link) => link.classList.toggle('active', link === current))
 }
+refreshSectionOffsets()
 updateSectionNavigation()
 let navigationFrame = null
 window.addEventListener('scroll', () => {
@@ -172,4 +178,10 @@ window.addEventListener('scroll', () => {
     updateSectionNavigation()
     navigationFrame = null
   })
+}, { passive: true })
+let navigationWidth = window.innerWidth
+window.addEventListener('resize', () => {
+  if (window.innerWidth === navigationWidth) return
+  navigationWidth = window.innerWidth
+  refreshSectionOffsets()
 }, { passive: true })

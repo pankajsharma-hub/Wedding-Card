@@ -104,6 +104,11 @@ footer { min-height: 68px; display: flex; align-items: center; justify-content: 
   .section { padding-block: 56px; }.hero { min-height: 680px; padding-top: 55px; }.hero h1 { font-size: clamp(65px,20vw,86px); }.invitation-line { font-size: 18px; }.blessing-strip p { font-size: 9px; }.section-heading { margin-bottom: 30px; }.person-card { min-height: 285px; padding: 24px 20px; }.person-copy h3 { font-size: 45px; }.person-copy strong { font-size: 19px; }.person-copy address { font-size: 12px; }.quote-section { min-height: 245px; }.quote-inner blockquote { font-size: 40px; }.events-section { padding-block: 58px; }.event-day { min-height: 355px; }.countdown-section { padding-block: 43px; }.map-placeholder { height: 315px; }.closing-section { min-height: 310px; }.closing-content h2 { font-size: 53px; }
 }
 
+/* Mobile performance mode: preserve content and remove scroll-blocking paint work. */
+@media (max-width: 850px), (pointer: coarse) {
+  html { scroll-behavior: auto; }.firework-trail,.noise,.quote-pattern { display: none!important; }.reveal-on-scroll,.reveal-on-scroll.visible { opacity: 1; transform: none; transition: none; }.glass,.event-day,.floating-nav,.map-label,.card-number { -webkit-backdrop-filter: none!important; backdrop-filter: none!important; }.sun-disc,.mandala,.closing-mandala,.map-pin,.scroll-hint i { animation: none!important; }.events-slider { width: min(100%,560px); display: grid; grid-template-columns: 1fr; gap: 14px; overflow: visible; margin: 0 auto; padding: 0; scroll-snap-type: none; touch-action: pan-y; }.event-day { width: 100%; min-height: 0; flex: none; scroll-snap-align: none; box-shadow: none; }.slider-dots { display: none; }.person-card,.countdown,.map-placeholder { box-shadow: 0 8px 22px rgba(76,16,35,.07); }.flower-corner { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,*::before,*::after { scroll-behavior: auto!important; animation-duration: .01ms!important; animation-iteration-count: 1!important; transition-duration: .01ms!important; }.reveal-on-scroll { opacity: 1; transform: none; }.petal-trail,.firework-trail { display: none; }
 }
